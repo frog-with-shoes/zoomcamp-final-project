@@ -134,6 +134,7 @@ services:
 
   airflow-scheduler:
     <<: *airflow-common
+    build: .
     command: scheduler
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8974/health"]
@@ -149,6 +150,7 @@ services:
 
   airflow-worker:
     <<: *airflow-common
+    build: .
     command: celery worker
     healthcheck:
       # yamllint disable rule:line-length
