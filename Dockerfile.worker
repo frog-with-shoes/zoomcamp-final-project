@@ -1,0 +1,63 @@
+FROM apache/airflow:2.10.5-python3.9
+
+
+
+USER root 
+
+
+RUN apt-get update && apt-get install -y --no-install-recommends wget tar curl gnupg build-essential python3-dev
+
+# Download and install Java
+ARG JAVA_URL=https://download.java.net/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz
+RUN wget -P /opt $JAVA_URL \
+    && tar -xzf /opt/openjdk-11.0.2_linux-x64_bin.tar.gz -C /opt \
+    && mv /opt/jdk-11.0.2 /opt/spark-jdk-11 # TODO: change this part.
+
+# Set JAVA_HOME and update PATH
+ENV JAVA_HOME=/opt/jdk-11.0.2
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+
+
+# Download and install Spark
+ARG SPARK_URL=https://dlcdn.apache.org/spark/spark-3.4.4/spark-3.4.4-bin-hadoop3.tgz
+
+# Download and install Spark
+RUN wget -P /opt $SPARK_URL \
+    && tar xzfv /opt/spark-3.4.4-bin-hadoop3.tgz -C /opt \
+    && rm /opt/spark-3.4.4-bin-hadoop3.tgz \
+    && mv /opt/spark-3.4.4-bin-hadoop3 /opt/spark
+
+# Set SPARK_HOME and update PATH
+ENV SPARK_HOME=/opt/spark
+ENV PATH="${SPARK_HOME}/bin:${PATH}"
+
+# PySpark path
+ENV PYTHONPATH="${SPARK_HOME}/python/:$PYTHONPATH"
+ENV PYTHONPATH="${SPARK_HOME}/python/lib/py4j-0.10.9.7-src.zip:$PYTHONPATH"
+
+ARG GCS_CONNECTOR_VERSION=hadoop3-2.2.5
+ARG GCS_CONNECTOR_GCS_URL=gs://hadoop-lib/gcs/gcs-connector-${GCS_CONNECTOR_VERSION}.jar
+RUN mkdir -p /opt/spark/jars && gcloud storage cp gs://hadoop-lib/gcs/gcs-connector-hadoop3-2.2.5.jar /opt/spark/jars/gcs-connector-hadoop3-2.2.5.jar
+
+
+
+RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+
+RUN echo "deb https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+
+RUN apt-get update && apt-get install -y google-cloud-sdk
+
+USER airflow
+
+RUN pip uninstall -y pendulum
+RUN pip cache purge
+RUN pip install --no-cache-dir setuptools
+RUN pip install --no-cache-dir pendulum==2.1.2 
+
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+# get_ipython().system('wget https://donnees.montreal.ca/dataset/b89fd27d-4b49-461b-8e54-fa2b34a628c4/resource/64e28fe6-ef37-437a-972d-d1d3f1f7d891/download/arbres-publics.csv -O arbres-publics.csv')
+
+
+COPY dags/ /app/dags/
