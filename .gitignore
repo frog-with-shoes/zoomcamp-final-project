@@ -38,3 +38,8 @@ terraform.rc
 
 
 logs
+
+dags/__pycache__
+dags/src/__pycache__
+
+.env
