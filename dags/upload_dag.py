@@ -1,19 +1,14 @@
-# from airflow.decorators import dag, task
-# from airflow.providers.google.cloud.hooks.gcs import GCSHook
-# from datetime import datetime
-
+import os
 
 from airflow import DAG
 from airflow.operators.bash import BashOperator
+from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.transfers.local_to_gcs import LocalFilesystemToGCSOperator
 from datetime import datetime
-import os
-
+from src.ingest_spark_gcp import extract
 GCS_BUCKET = "dtc_data_lake_de_nytaxi_mee"
 GCS_FILE_PATH = "code/trees_write_gcs_bucket_upload.py" # The new path
 LOCAL_FILE_PATH = "/opt/airflow/dags/src/trees_write_gcs_bucket_upload.py"
-
-
 
 with DAG(
     dag_id='upload_to_gcs',
@@ -30,3 +25,10 @@ with DAG(
         bucket=GCS_BUCKET,
         dag=dag,
     )
+
+    run_script_task = PythonOperator(
+        task_id='run_my_external_script',
+        python_callable=extract,
+    )
+
+    upload_with_operator  >> run_script_task

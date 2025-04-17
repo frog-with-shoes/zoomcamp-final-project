@@ -1,4 +1,3 @@
-
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark.conf import SparkConf
@@ -7,20 +6,18 @@ from pyspark.context import SparkContext
 
 from airflow.decorators import task
 import logging
+from airflow.providers.google.cloud.hooks.gcs import GCSHook
 
-
-@task
+# hello world 2
 def extract():
-#!/usr/bin/env python
-# coding: utf-8
+    gcs_hook = GCSHook(gcp_conn_id='google_cloud_default') # Use your Connection ID yES1
+    credentials, project = gcs_hook.get_credentials_and_project() 
 
-
-    credentials_location = '/home/louis/.keys/ny-rides.json'
 
     conf = SparkConf() \
         .setMaster('local[*]') \
         .setAppName('test') \
-        .set("spark.jars", "../lib/gcs-connector-hadoop3-2.2.5.jar") \
+        .set("spark.jars", "/opt/spark/jars/gcs-connector-hadoop3-2.2.5.jar") \
         .set("spark.hadoop.google.cloud.auth.service.account.enable", "true") \
         .set("spark.hadoop.google.cloud.auth.service.account.json.keyfile", credentials_location)
 
@@ -142,8 +139,8 @@ def extract():
 
 
 
-    data = {"x": 10, "y": 20}
-    print('hello world')
-    logger = logging.getLogger(__name__)
-    logger.info("This is a log message")
-    return data
+    # data = {"x": 10, "y": 20}
+    # print('hello world')
+    # logger = logging.getLogger(__name__)
+    # logger.info("This is a log message")
+    # return data

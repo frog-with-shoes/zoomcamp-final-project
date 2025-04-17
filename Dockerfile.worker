@@ -7,16 +7,23 @@ USER root
 
 RUN apt-get update && apt-get install -y --no-install-recommends wget tar curl gnupg build-essential python3-dev
 
+
+RUN  rm -rf /opt/openjdk-11.0.2_linux-x64_bin.tar.gz \
+rm -rf /opt/openjdk-11.0.2_linux-x64_bin.tar.gz.1 \
+    && rm -rf /opt/spark \
+    && rm -rf /opt/spark-jdk-11 
+
+run ls /opt/
+
 # Download and install Java
 ARG JAVA_URL=https://download.java.net/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz
 RUN wget -P /opt $JAVA_URL \
     && tar -xzf /opt/openjdk-11.0.2_linux-x64_bin.tar.gz -C /opt \
-    && mv /opt/jdk-11.0.2 /opt/spark-jdk-11 # TODO: change this part.
+    && mv /opt/jdk-11.0.2 /opt/spark-jdk-11
 
 # Set JAVA_HOME and update PATH
-ENV JAVA_HOME=/opt/jdk-11.0.2
+ENV JAVA_HOME=/opt/spark-jdk-11
 ENV PATH="${JAVA_HOME}/bin:${PATH}"
-
 
 # Download and install Spark
 ARG SPARK_URL=https://dlcdn.apache.org/spark/spark-3.4.4/spark-3.4.4-bin-hadoop3.tgz
@@ -57,7 +64,7 @@ RUN pip install --no-cache-dir pendulum==2.1.2
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
-# get_ipython().system('wget https://donnees.montreal.ca/dataset/b89fd27d-4b49-461b-8e54-fa2b34a628c4/resource/64e28fe6-ef37-437a-972d-d1d3f1f7d891/download/arbres-publics.csv -O arbres-publics.csv')
+COPY arbres-publics.csv /opt/airflow/data/arbres-publics.csv
 
 
 COPY dags/ /app/dags/
