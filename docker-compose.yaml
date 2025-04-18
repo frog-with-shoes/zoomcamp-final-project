@@ -120,6 +120,14 @@ services:
     command: webserver
     ports:
       - "8080:8080"
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}  # Path from .env file
+      GCP_PROJECT: ${GCP_PROJECT}  # Project ID from .env file
+      DBT_PROFILE: ${DBT_PROFILE}  # DBT profile from .env file
+      GCP_DATASET: ${GCP_DATASET}
+
+    volumes:
+      - ${GOOGLE_APPLICATION_CREDENTIALS}:/opt/airflow/.google/credentials.json  # Mount service account JSON
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
       interval: 30s
@@ -136,6 +144,16 @@ services:
     <<: *airflow-common
     build: .   
     command: scheduler
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}  # Path from .env file
+      GCP_PROJECT: ${GCP_PROJECT}  # Project ID from .env file
+      DBT_PROFILE: ${DBT_PROFILE}  # DBT profile from .env file
+      GCP_DATASET: ${GCP_DATASET}
+
+    volumes:
+      - ${GOOGLE_APPLICATION_CREDENTIALS}:/opt/airflow/.google/credentials.json  # Mount service account JSON
+      - ./final_project_dbt_transformation:/opt/dbt
+      - ~/.dbt:/opt/dbt/.dbt 
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8974/health"]
       interval: 30s
@@ -168,6 +186,14 @@ services:
       # Required to handle warm shutdown of the celery workers properly
       # See https://airflow.apache.org/docs/docker-stack/entrypoint.html#signal-propagation
       DUMB_INIT_SETSID: "0"
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}  # Path from .env file
+      GCP_PROJECT: ${GCP_PROJECT}  # Project ID from .env file
+      DBT_PROFILE: ${DBT_PROFILE}  # DBT profile from .env file
+      GCP_DATASET: ${GCP_DATASET}
+    volumes:
+      - ${GOOGLE_APPLICATION_CREDENTIALS}:/opt/airflow/.google/credentials.json  # Mount service account JSON
+      - ./final_project_dbt_transformation:/opt/dbt
+      - ~/.dbt:/opt/dbt/.dbt 
     restart: always
     depends_on:
       <<: *airflow-common-depends-on
@@ -252,6 +278,7 @@ services:
     user: "0:0"
     volumes:
       - ${AIRFLOW_PROJ_DIR:-.}:/sources
+      - ${GOOGLE_APPLICATION_CREDENTIALS}:/opt/airflow/.google/credentials.json
 
   airflow-cli:
     <<: *airflow-common
@@ -265,6 +292,8 @@ services:
       - bash
       - -c
       - airflow
+    volumes:
+      - ${GOOGLE_APPLICATION_CREDENTIALS}:/opt/airflow/.google/credentials.json
 
   # You can enable flower by adding "--profile flower" option e.g. docker-compose --profile flower up
   # or by explicitly targeted on the command line e.g. docker-compose up flower.

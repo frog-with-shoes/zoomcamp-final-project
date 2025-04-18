@@ -15,7 +15,7 @@ USER airflow
 RUN pip uninstall -y pendulum
 RUN pip cache purge
 RUN pip install --no-cache-dir setuptools
-RUN pip install --no-cache-dir pendulum==2.1.2 
+RUN pip install --no-cache-dir pendulum==2.1.2
 
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt

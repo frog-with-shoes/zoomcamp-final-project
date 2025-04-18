@@ -42,17 +42,17 @@ ENV PATH="${SPARK_HOME}/bin:${PATH}"
 ENV PYTHONPATH="${SPARK_HOME}/python/:$PYTHONPATH"
 ENV PYTHONPATH="${SPARK_HOME}/python/lib/py4j-0.10.9.7-src.zip:$PYTHONPATH"
 
-ARG GCS_CONNECTOR_VERSION=hadoop3-2.2.5
-ARG GCS_CONNECTOR_GCS_URL=gs://hadoop-lib/gcs/gcs-connector-${GCS_CONNECTOR_VERSION}.jar
-RUN mkdir -p /opt/spark/jars && gcloud storage cp gs://hadoop-lib/gcs/gcs-connector-hadoop3-2.2.5.jar /opt/spark/jars/gcs-connector-hadoop3-2.2.5.jar
-
-
 
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 
 RUN echo "deb https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
 
 RUN apt-get update && apt-get install -y google-cloud-sdk
+
+ARG GCS_CONNECTOR_VERSION=hadoop3-2.2.5
+ARG GCS_CONNECTOR_GCS_URL=gs://hadoop-lib/gcs/gcs-connector-${GCS_CONNECTOR_VERSION}.jar
+RUN mkdir -p /opt/spark/jars && gcloud storage cp gs://hadoop-lib/gcs/gcs-connector-hadoop3-2.2.5.jar /opt/spark/jars/gcs-connector-hadoop3-2.2.5.jar
+
 
 USER airflow
 
