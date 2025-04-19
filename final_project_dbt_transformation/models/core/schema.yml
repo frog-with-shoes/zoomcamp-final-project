@@ -1,0 +1,5 @@
+version: 2
+sources:
+  - name: fct_tree_plantings
+    database: "{{ env_var('GCP_PROJECT') }}"
+   

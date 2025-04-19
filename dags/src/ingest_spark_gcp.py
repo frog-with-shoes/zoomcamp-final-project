@@ -3,20 +3,33 @@ import tempfile
 import os
 import logging
 
+from dotenv import load_dotenv
+
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark.conf import SparkConf
 from pyspark.context import SparkContext
+from pyspark.sql import types
+from pyspark.sql import functions as F
+
 
 from airflow.hooks.base import BaseHook
 from airflow.decorators import task
 import logging
 
+
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# hello world 2
+load_dotenv()
+
+
 def extract():
+
+    # env variables
+    GCS_BUCKET =  os.environ.get("BUCKET_PARQUET_FOLDER")
+
     conn  = BaseHook.get_connection('google_cloud_default')
     keyfile_dict = json.loads(conn.extra_dejson.get("keyfile_dict"))
    
@@ -36,7 +49,6 @@ def extract():
 
 
 
-
         sc = SparkContext.getOrCreate(conf=conf)
 
         hadoop_conf = sc._jsc.hadoopConfiguration()
@@ -52,15 +64,6 @@ def extract():
         spark = SparkSession.builder \
             .config(conf=sc.getConf()) \
             .getOrCreate()
-
-
-
-
-
-
-        from pyspark.sql import types
-
-
 
 
         public_tree_schema = types.StructType([
@@ -110,35 +113,21 @@ def extract():
             )
 
 
-
-
-        from pyspark.sql import functions as F
-
-
-
-
         df_filtered_data_plantation = df.filter(
             (F.col("Date_Plantation") >= F.to_timestamp(F.lit("1900-01-01T00:00:00Z"))) | F.col("Date_Plantation").isNull()
         )
-
-
 
 
         df_filtered_date_releve = df_filtered_data_plantation.filter(
             (F.col("Date_Releve") >= F.to_timestamp(F.lit("1900-01-01T00:00:00Z"))) | F.col("Date_Releve").isNull()
         )
 
-        logger.info(f"Writing to dataframe to bucket.")
-        
-
 
         df_filtered_date_releve.repartition(4)\
-        .write.parquet('gs://dtc_data_lake_de_nytaxi_mee/pq/montreal_trees/', mode="overwrite")
-
-        print("count: ", df_filtered_date_releve.count())
+        .write.parquet(BUCKET_PARQUET_FOLDER, mode="overwrite")
 
         spark.stop()
-    except exception as e:
+    except Exception as e:
         logger.error(f"Error during Spark job execution: {e}")
         raise
     finally:
