@@ -1,5 +1,11 @@
 # zoomcamp-final-project
 
+# Table of Contents
+1. Google Cloud Connection Setup
+2. Airflow Setup with docker compose
+3. Terraform Setup
+4. Project structure
+5. Problem Description
 
 # Airflow Project Setup
 
@@ -30,7 +36,9 @@ This project requires a Google Cloud connection to be set up in Airflow.
 
 ## Terraform Setup
 
-1. Create 
+1. Using terraform/variables_example.tf as an example create your very own variables.tf.
+2. Terraform init
+3. Terraform apply and it will create the necessary buckets and big query for this project. 
 
 ### Project structure
 ~~~
@@ -49,11 +57,15 @@ final-project
 ~~~
 
 
-### Problem Description.
+### Problem Description
 
-The purpose of building this ELT is build an ELT that:
-1. Ingests the "arbres publics" dataset from the following website: https://donnees.montreal.ca/dataset/arbres. The first task seeks to place the ingestion script in a bucket. From there, we are able to call it using a local spark instance with gcs connector.
-2. Loading the the buckets in parquet format to bigquery by partition by date planted and by species.
+The purpose of building this ELT to:
+1. Ingest the "arbres publics" dataset from the following website: https://donnees.montreal.ca/dataset/arbres. The first task seeks to place the ingestion script in a bucket. From there, we are able to call it using a local spark instance with gcs connector.
+2. Loading the the buckets in parquet format to bigquery by partition by date planted and cluster by species.
 3. Transformation done through dbt core, it first creates a staging table to rename and filter our null values. Then it the fact table is called containing aggregations which can then be used to create the dashboard. 
 
-The insight sought after from creating and running the pipeline is viewing the number of trees over time (20 years set by default). So a timeseries graph was used to evaluate that, moreover another tile showing the distribution of the species of trees was studied as well.
+The insight sought from creating, and running the pipeline is view the number of trees over time (20 years set by default). So a timeseries graph was used to evaluate that, moreover another tile showing the distribution of the species of trees was studied as well.
+
+
+![alt text](image.png)
+**Exhibit1: Dashboard analysis showing tree over time.**
