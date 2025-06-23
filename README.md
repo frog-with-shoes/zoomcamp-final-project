@@ -67,5 +67,6 @@ The purpose of building this ELT to:
 The insight sought from creating, and running the pipeline is view the number of trees over time (20 years set by default). So a timeseries graph was used to evaluate that, moreover another tile showing the distribution of the species of trees was studied as well.
 
 
-![alt text](image.png)
+![Image could not load.](![image](https://github.com/user-attachments/assets/d3fe70d0-f976-442c-afec-c77507259c14)
+)
 **Exhibit1: Dashboard analysis showing tree over time.**
