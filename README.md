@@ -68,5 +68,4 @@ The insight sought from creating, and running the pipeline is view the number of
 
 
 ![Image could not load.](![image](https://github.com/user-attachments/assets/d3fe70d0-f976-442c-afec-c77507259c14)
-)
 **Exhibit1: Dashboard analysis showing tree over time.**
